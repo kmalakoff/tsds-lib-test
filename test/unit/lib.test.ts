@@ -7,9 +7,8 @@ import os from 'os';
 import osShim from 'os-shim';
 import path from 'path';
 import shortHash from 'short-hash';
-import url from 'url';
-
 import { installGitRepo } from 'tsds-lib-test';
+import url from 'url';
 
 const tmpdir = os.tmpdir || osShim.tmpdir;
 

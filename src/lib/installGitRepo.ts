@@ -1,9 +1,9 @@
 import spawn from 'cross-spawn-cb';
 import fs from 'fs';
+import { safeRm } from 'fs-remove-compat';
 import mkdirp from 'mkdirp-classic';
 import path from 'path';
 import Queue from 'queue-cb';
-import rimraf2 from 'rimraf2';
 import type { CommandCallback, CommandOptions } from 'tsds-lib';
 import { wrapWorker } from 'tsds-lib';
 import url from 'url';
@@ -19,7 +19,7 @@ function worker(repo, dest, options: CommandOptions | InstallOptions, callback: 
   const installOptions = options as InstallOptions;
   // options.clean = true;
   function checkOrClean(dest, callback) {
-    installOptions.clean ? rimraf2(dest, { disableGlob: true }, callback.bind(null, new Error('clone'))) : fs.stat(dest, callback);
+    installOptions.clean ? safeRm(dest, () => callback(new Error('clone'))) : fs.stat(dest, callback);
   }
 
   checkOrClean(dest, (err) => {

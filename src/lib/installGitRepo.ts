@@ -12,7 +12,7 @@ import type { InstallOptions } from '../types.ts';
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const major = +process.versions.node.split('.')[0];
 const dist = path.join(__dirname, '..', '..');
-const version = major > 0 ? 'local' : 'stable';
+const version = major > 14 ? 'local' : 'stable';
 const workerWrapper = wrapWorker(path.join(dist, 'cjs', 'lib', 'installGitRepo.js'));
 
 function worker(repo, dest, options: CommandOptions | InstallOptions, callback: CommandCallback) {

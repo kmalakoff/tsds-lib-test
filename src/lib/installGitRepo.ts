@@ -39,10 +39,16 @@ function worker(repo, dest, options: CommandOptions | InstallOptions, callback: 
           const files = fs.readdirSync(gitDir);
           for (let i = 0; i < files.length; i++) {
             if (files[i].indexOf('.lock') >= 0) {
-              try { fs.unlinkSync(path.join(gitDir, files[i])); } catch (_e) { /* ignore */ }
+              try {
+                fs.unlinkSync(path.join(gitDir, files[i]));
+              } catch (_e) {
+                /* ignore */
+              }
             }
           }
-        } catch (_e) { /* ignore */ }
+        } catch (_e) {
+          /* ignore */
+        }
         cb();
       });
       // Abort any in-progress merge/rebase (ignore errors if none in progress)

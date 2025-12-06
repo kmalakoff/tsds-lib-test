@@ -23,7 +23,7 @@ describe('lib', () => {
     it('should clone and install a git repo', (done) => {
       installGitRepo(REPO, dest, (err?: Error): undefined => {
         if (err) {
-          done(err.message);
+          done(err);
           return;
         }
         // Verify the repo was cloned
@@ -42,7 +42,7 @@ describe('lib', () => {
 
       installGitRepo(REPO, dest, (err?: Error): undefined => {
         if (err) {
-          done(err.message);
+          done(err);
           return;
         }
         // Test file should be removed by git clean

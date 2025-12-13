@@ -1,4 +1,4 @@
-import spawn from 'cross-spawn-cb';
+import spawn, { type SpawnError } from 'cross-spawn-cb';
 import fs from 'fs';
 import { safeRm } from 'fs-remove-compat';
 import mkdirp from 'mkdirp-classic';
@@ -14,6 +14,28 @@ const major = +process.versions.node.split('.')[0];
 const dist = path.join(__dirname, '..', '..');
 const version = major > 14 ? 'local' : 'stable';
 const workerWrapper = wrapWorker(path.join(dist, 'cjs', 'lib', 'installGitRepo.js'));
+
+interface QuietSpawnError extends SpawnError {
+  command?: string;
+  args?: string[];
+  cwd?: string;
+}
+
+function spawnQuiet(command: string, args: string[], options: { cwd: string }, callback: (err?: Error | null) => void) {
+  spawn(command, args, { ...options, encoding: 'utf8' }, (err?: SpawnError) => {
+    if (err) {
+      const qerr = err as QuietSpawnError;
+      const cmdString = `${command} ${args.join(' ')}`;
+      qerr.message = `Command failed: ${cmdString}\n${qerr.message}`;
+      qerr.command = command;
+      qerr.args = args;
+      qerr.cwd = options.cwd;
+      if (qerr.stderr) qerr.message += `\nstderr: ${qerr.stderr}`;
+      if (qerr.stdout) qerr.message += `\nstdout: ${qerr.stdout}`;
+    }
+    callback(err);
+  });
+}
 
 function checkDirectoryExists(dest: string, callback: (err: Error | null, exists?: boolean) => void) {
   fs.stat(dest, (err) => {
@@ -41,7 +63,7 @@ function updateRepository(dest: string, callback) {
 }
 
 function installDependencies(dest: string, callback) {
-  spawn('npm', ['install', '--silent'], { cwd: dest }, callback);
+  spawnQuiet('npm', ['install'], { cwd: dest }, callback);
 }
 
 function cleanInstall(repo: string, dest: string, callback) {

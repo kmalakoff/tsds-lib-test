@@ -50,15 +50,15 @@ function cloneRepository(repo: string, dest: string, callback) {
   const repoName = path.basename(dest);
   const queue = new Queue(1);
   queue.defer(mkdirp.bind(null, dest));
-  queue.defer(spawn.bind(null, 'git', ['clone', repo, repoName], { cwd: parentDir, stdio: 'inherit' }));
+  queue.defer((cb) => spawnQuiet('git', ['clone', repo, repoName], { cwd: parentDir }, cb));
   queue.await(callback);
 }
 
 function updateRepository(dest: string, callback) {
   const queue = new Queue(1);
-  queue.defer(spawn.bind(null, 'git', ['clean', '-fd'], { cwd: dest, stdio: 'inherit' }));
-  queue.defer(spawn.bind(null, 'git', ['reset', '--hard', 'HEAD'], { cwd: dest, stdio: 'inherit' }));
-  queue.defer(spawn.bind(null, 'git', ['pull', '--rebase'], { cwd: dest, stdio: 'inherit' }));
+  queue.defer((cb) => spawnQuiet('git', ['clean', '-fd'], { cwd: dest }, cb));
+  queue.defer((cb) => spawnQuiet('git', ['reset', '--hard', 'HEAD'], { cwd: dest }, cb));
+  queue.defer((cb) => spawnQuiet('git', ['pull', '--rebase'], { cwd: dest }, cb));
   queue.await(callback);
 }
 

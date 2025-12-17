@@ -2,10 +2,10 @@ import spawn, { type SpawnError } from 'cross-spawn-cb';
 import fs from 'fs';
 import { safeRm } from 'fs-remove-compat';
 import mkdirp from 'mkdirp-classic';
+import { wrap } from 'node-version-call';
 import path from 'path';
 import Queue from 'queue-cb';
 import type { CommandCallback, CommandOptions } from 'tsds-lib';
-import { wrapWorker } from 'tsds-lib';
 import url from 'url';
 import type { InstallOptions } from '../types.ts';
 
@@ -13,7 +13,7 @@ const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLTo
 const major = +process.versions.node.split('.')[0];
 const dist = path.join(__dirname, '..', '..');
 const version = major > 14 ? 'local' : 'stable';
-const workerWrapper = wrapWorker(path.join(dist, 'cjs', 'lib', 'installGitRepo.js'));
+const workerWrapper = wrap(path.join(dist, 'cjs', 'lib', 'installGitRepo.js'));
 
 interface QuietSpawnError extends SpawnError {
   command?: string;

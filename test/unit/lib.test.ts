@@ -21,7 +21,7 @@ describe('lib', () => {
     const dest = path.join(tmpdir(), 'tsds-lib-test', shortHash(process.cwd()), 'fetch-http-message');
 
     it('should clone and install a git repo', (done) => {
-      installGitRepo(REPO, dest, (err?: Error): undefined => {
+      installGitRepo(REPO, dest, (err?: Error): void => {
         if (err) {
           done(err);
           return;
@@ -40,7 +40,7 @@ describe('lib', () => {
       fs.writeFileSync(testFile, 'test');
       assert.ok(fs.existsSync(testFile), 'test file should exist before reset');
 
-      installGitRepo(REPO, dest, (err?: Error): undefined => {
+      installGitRepo(REPO, dest, (err?: Error): void => {
         if (err) {
           done(err);
           return;

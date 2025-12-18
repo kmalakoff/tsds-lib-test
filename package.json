@@ -39,7 +39,7 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "cross-spawn-cb": "^2.0.0",
+    "cross-spawn-cb": "^3.0.0",
     "fs-remove-compat": "^1.0.0",
     "mkdirp-classic": "^0.5.2",
     "node-version-call": "^1.11.0",

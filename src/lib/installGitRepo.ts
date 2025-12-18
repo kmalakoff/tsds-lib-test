@@ -2,18 +2,16 @@ import spawn, { type SpawnError } from 'cross-spawn-cb';
 import fs from 'fs';
 import { safeRm } from 'fs-remove-compat';
 import mkdirp from 'mkdirp-classic';
-import { wrap } from 'node-version-call';
+import { bind } from 'node-version-call';
 import path from 'path';
 import Queue from 'queue-cb';
 import type { CommandCallback, CommandOptions } from 'tsds-lib';
 import url from 'url';
 import type { InstallOptions } from '../types.ts';
 
-const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const major = +process.versions.node.split('.')[0];
+const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const dist = path.join(__dirname, '..', '..');
-const version = major > 14 ? 'local' : 'stable';
-const workerWrapper = wrap(path.join(dist, 'cjs', 'lib', 'installGitRepo.js'));
 
 interface QuietSpawnError extends SpawnError {
   command?: string;
@@ -74,7 +72,7 @@ function cleanInstall(repo: string, dest: string, callback) {
   queue.await(callback);
 }
 
-function worker(repo: string, dest: string, options: CommandOptions | InstallOptions, callback: CommandCallback) {
+function run(repo: string, dest: string, options: CommandOptions | InstallOptions, callback: CommandCallback) {
   const installOptions = options as InstallOptions;
 
   if (installOptions.clean) {
@@ -99,6 +97,8 @@ function worker(repo: string, dest: string, options: CommandOptions | InstallOpt
   }
 }
 
+const worker = major >= 20 ? run : bind('>=20', path.join(dist, 'cjs', 'lib', 'installGitRepo.js'), { callbacks: true });
+
 export default function installGitRepo(repo: string, dest: string, callback: CommandCallback): void;
 export default function installGitRepo(repo: string, dest: string, options: CommandOptions, callback: CommandCallback): void;
 export default function installGitRepo(repo: string, dest: string, options: CommandOptions | CommandCallback, callback?: CommandCallback): void {
@@ -107,5 +107,5 @@ export default function installGitRepo(repo: string, dest: string, options: Comm
     options = {};
   }
   options = options || {};
-  version !== 'local' ? workerWrapper(version, repo, dest, options, callback) : worker(repo, dest, options, callback);
+  worker(repo, dest, options, callback);
 }

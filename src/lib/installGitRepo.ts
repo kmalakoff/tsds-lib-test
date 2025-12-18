@@ -99,7 +99,9 @@ function worker(repo: string, dest: string, options: CommandOptions | InstallOpt
   }
 }
 
-export default function installGitRepo(repo: string, dest: string, options: CommandOptions | CommandCallback, callback?: CommandCallback): undefined {
+export default function installGitRepo(repo: string, dest: string, callback: CommandCallback): void;
+export default function installGitRepo(repo: string, dest: string, options: CommandOptions, callback: CommandCallback): void;
+export default function installGitRepo(repo: string, dest: string, options: CommandOptions | CommandCallback, callback?: CommandCallback): void {
   if (typeof options === 'function') {
     callback = options;
     options = {};

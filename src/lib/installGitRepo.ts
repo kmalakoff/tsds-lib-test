@@ -101,11 +101,12 @@ const worker = major >= 20 ? run : bind('>=20', path.join(dist, 'cjs', 'lib', 'i
 
 export default function installGitRepo(repo: string, dest: string, callback: CommandCallback): void;
 export default function installGitRepo(repo: string, dest: string, options: CommandOptions, callback: CommandCallback): void;
-export default function installGitRepo(repo: string, dest: string, options: CommandOptions | CommandCallback, callback?: CommandCallback): void {
-  if (typeof options === 'function') {
-    callback = options;
-    options = {};
-  }
-  options = options || {};
-  worker(repo, dest, options, callback);
+export default function installGitRepo(repo: string, dest: string): Promise<null>;
+export default function installGitRepo(repo: string, dest: string, options: CommandOptions): Promise<null>;
+export default function installGitRepo(repo: string, dest: string, options?: CommandOptions | CommandCallback, callback?: CommandCallback): void | Promise<null> {
+  callback = typeof options === 'function' ? options : callback;
+  options = typeof options === 'function' ? {} : ((options || {}) as CommandOptions);
+
+  if (typeof callback === 'function') return worker(repo, dest, options, callback) as void;
+  return new Promise((resolve, reject) => worker(repo, dest, options, (err, json) => (err ? reject(err) : resolve(json))));
 }

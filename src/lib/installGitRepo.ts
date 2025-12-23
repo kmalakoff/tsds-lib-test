@@ -97,7 +97,9 @@ function run(repo: string, dest: string, options: CommandOptions | InstallOption
   }
 }
 
-const worker = major >= 20 ? run : bind('>=20', path.join(dist, 'cjs', 'lib', 'installGitRepo.js'), { callbacks: true });
+type installGitRepoFunction = (repo: string, dest: string, options: CommandOptions, callback: CommandCallback) => void;
+
+const worker = (major >= 20 ? run : bind('>=20', path.join(dist, 'cjs', 'lib', 'installGitRepo.js'), { callbacks: true })) as installGitRepoFunction;
 
 export default function installGitRepo(repo: string, dest: string, callback: CommandCallback): void;
 export default function installGitRepo(repo: string, dest: string, options: CommandOptions, callback: CommandCallback): void;
@@ -108,5 +110,5 @@ export default function installGitRepo(repo: string, dest: string, options?: Com
   options = typeof options === 'function' ? {} : ((options || {}) as CommandOptions);
 
   if (typeof callback === 'function') return worker(repo, dest, options, callback) as void;
-  return new Promise((resolve, reject) => worker(repo, dest, options, (err, json) => (err ? reject(err) : resolve(json))));
+  return new Promise((resolve, reject) => worker(repo, dest, options, (err) => (err ? reject(err) : resolve(null))));
 }

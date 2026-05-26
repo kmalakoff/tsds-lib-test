@@ -49,6 +49,7 @@
   "devDependencies": {
     "@types/mocha": "*",
     "@types/node": "*",
+    "@types/short-hash": "^1.0.3",
     "node-version-use": "*",
     "os-shim": "^0.1.3",
     "short-hash": "^1.0.0",

@@ -19,7 +19,7 @@ interface QuietSpawnError extends SpawnError {
   cwd?: string;
 }
 
-function spawnQuiet(command: string, args: string[], options: { cwd: string }, callback: (err?: Error | null) => void) {
+function spawnQuiet(command: string, args: string[], options: { cwd: string }, callback: (err?: Error) => void) {
   spawn(command, args, { ...options, encoding: 'utf8' }, (err?: SpawnError) => {
     if (err) {
       const qerr = err as QuietSpawnError;
@@ -43,16 +43,16 @@ function checkDirectoryExists(dest: string, callback: (err: Error | null, exists
   });
 }
 
-function cloneRepository(repo: string, dest: string, callback) {
+function cloneRepository(repo: string, dest: string, callback: (err?: Error) => void) {
   const parentDir = path.dirname(dest);
   const repoName = path.basename(dest);
   const queue = new Queue(1);
-  queue.defer(mkdirp.bind(null, dest));
+  queue.defer((cb) => mkdirp(dest, (err) => cb(err ?? undefined)));
   queue.defer((cb) => spawnQuiet('git', ['clone', repo, repoName], { cwd: parentDir }, cb));
   queue.await(callback);
 }
 
-function updateRepository(dest: string, callback) {
+function updateRepository(dest: string, callback: (err?: Error) => void) {
   const queue = new Queue(1);
   queue.defer((cb) => spawnQuiet('git', ['clean', '-fd'], { cwd: dest }, cb));
   queue.defer((cb) => spawnQuiet('git', ['reset', '--hard', 'HEAD'], { cwd: dest }, cb));
@@ -60,13 +60,13 @@ function updateRepository(dest: string, callback) {
   queue.await(callback);
 }
 
-function installDependencies(dest: string, callback) {
+function installDependencies(dest: string, callback: (err?: Error) => void) {
   spawnQuiet('npm', ['install'], { cwd: dest }, callback);
 }
 
-function cleanInstall(repo: string, dest: string, callback) {
+function cleanInstall(repo: string, dest: string, callback: (err?: Error) => void) {
   const queue = new Queue(1);
-  queue.defer(safeRm.bind(null, dest));
+  queue.defer((cb) => safeRm(dest, (err) => cb(err ?? undefined)));
   queue.defer(cloneRepository.bind(null, repo, dest));
   queue.defer(installDependencies.bind(null, dest));
   queue.await(callback);
@@ -86,7 +86,7 @@ function run(repo: string, dest: string, options: CommandOptions | InstallOption
         queue.defer(installDependencies.bind(null, dest));
       } else {
         queue.defer((cb) => {
-          updateRepository(dest, (err2) => {
+          updateRepository(dest, (err2?: Error) => {
             if (err2) return cleanInstall(repo, dest, cb);
             installDependencies(dest, cb);
           });

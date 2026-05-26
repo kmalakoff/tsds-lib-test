@@ -22,10 +22,7 @@ describe('lib', () => {
 
     it('should clone and install a git repo', (done) => {
       installGitRepo(REPO, dest, (err?: Error): void => {
-        if (err) {
-          done(err);
-          return;
-        }
+        if (err) return done(err);
         // Verify the repo was cloned
         assert.ok(fs.existsSync(path.join(dest, 'package.json')), 'package.json should exist');
         assert.ok(fs.existsSync(path.join(dest, '.git')), '.git should exist');
@@ -41,10 +38,7 @@ describe('lib', () => {
       assert.ok(fs.existsSync(testFile), 'test file should exist before reset');
 
       installGitRepo(REPO, dest, (err?: Error): void => {
-        if (err) {
-          done(err);
-          return;
-        }
+        if (err) return done(err);
         // Test file should be removed by git clean
         assert.ok(!fs.existsSync(testFile), 'test file should be removed after reset');
         done();

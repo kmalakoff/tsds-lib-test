@@ -19,7 +19,7 @@ interface QuietSpawnError extends SpawnError {
   cwd?: string;
 }
 
-function spawnQuiet(command: string, args: string[], options: { cwd: string }, callback: (err?: Error | null) => void) {
+function spawnQuiet(command: string, args: string[], options: { cwd: string; env?: NodeJS.ProcessEnv }, callback: (err?: Error | null) => void) {
   spawn(command, args, { ...options, encoding: 'utf8' }, (err?: SpawnError) => {
     if (err) {
       const qerr = err as QuietSpawnError;
@@ -60,8 +60,16 @@ function updateRepository(dest: string, callback: (err?: Error | null) => void) 
   queue.await(callback);
 }
 
+// npm run exports npm config as npm_config_* vars; an inherited allow-scripts
+// is command-line scoped, which npm rejects for project installs.
+function installEnv(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  delete env.npm_config_allow_scripts;
+  return env;
+}
+
 function installDependencies(dest: string, callback: (err?: Error | null) => void) {
-  spawnQuiet('npm', ['install'], { cwd: dest }, callback);
+  spawnQuiet('npm', ['install'], { cwd: dest, env: installEnv() }, callback);
 }
 
 function cleanInstall(repo: string, dest: string, callback: (err?: Error | null) => void) {

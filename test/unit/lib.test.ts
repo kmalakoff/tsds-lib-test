@@ -3,22 +3,19 @@ delete process.env.NODE_OPTIONS;
 
 import assert from 'assert';
 import fs from 'fs';
-import os from 'os';
-import osShim from 'os-shim';
 import path from 'path';
 import shortHash from 'short-hash';
 import { installGitRepo } from 'tsds-lib-test';
 import url from 'url';
 
-const tmpdir = os.tmpdir || osShim.tmpdir;
-
 const __dirname = path.dirname(typeof __filename !== 'undefined' ? __filename : url.fileURLToPath(import.meta.url));
+const pkgRoot = fs.realpathSync(path.join(__dirname, '..', '..'));
 
 const REPO = 'https://github.com/kmalakoff/fetch-http-message.git';
 
 describe('lib', () => {
   describe('installGitRepo', () => {
-    const dest = path.join(tmpdir(), 'tsds-lib-test', shortHash(process.cwd()), 'fetch-http-message');
+    const dest = path.join(pkgRoot, '.tmp', 'cache', shortHash(process.cwd()), 'fetch-http-message');
 
     it('should clone and install a git repo', (done) => {
       installGitRepo(REPO, dest, (err?: Error | null): void => {

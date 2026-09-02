@@ -32,6 +32,22 @@ function worker(repo, dest, options: CommandOptions | InstallOptions, callback: 
     }
     // exists - reset git
     else {
+      // Remove stale lock files first
+      queue.defer((cb) => {
+        const gitDir = path.join(dest, '.git');
+        try {
+          const files = fs.readdirSync(gitDir);
+          for (let i = 0; i < files.length; i++) {
+            if (files[i].indexOf('.lock') >= 0) {
+              try { fs.unlinkSync(path.join(gitDir, files[i])); } catch (_e) { /* ignore */ }
+            }
+          }
+        } catch (_e) { /* ignore */ }
+        cb();
+      });
+      // Abort any in-progress merge/rebase (ignore errors if none in progress)
+      queue.defer((cb) => spawn('git', ['merge', '--abort'], { cwd: dest, stdio: 'inherit' }, () => cb()));
+      queue.defer((cb) => spawn('git', ['rebase', '--abort'], { cwd: dest, stdio: 'inherit' }, () => cb()));
       queue.defer(spawn.bind(null, 'git', ['clean', '-fd'], { cwd: dest, stdio: 'inherit' }));
       queue.defer(spawn.bind(null, 'git', ['reset', '--hard', 'HEAD'], { cwd: dest, stdio: 'inherit' }));
       queue.defer(spawn.bind(null, 'git', ['pull', '--rebase'], { cwd: dest, stdio: 'inherit' }));

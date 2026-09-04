@@ -69,7 +69,7 @@ function installEnv(): NodeJS.ProcessEnv {
 }
 
 function installDependencies(dest: string, callback: (err?: Error | null) => void) {
-  spawnQuiet('npm', ['install', '--no-audit'], { cwd: dest, env: installEnv() }, callback);
+  spawnQuiet('npm', ['install'], { cwd: dest, env: installEnv() }, callback);
 }
 
 function cleanInstall(repo: string, dest: string, callback: (err?: Error | null) => void) {

@@ -49,9 +49,7 @@
   "devDependencies": {
     "@types/mocha": "*",
     "@types/node": "*",
-    "@types/short-hash": "^1.0.3",
     "node-version-use": "*",
-    "short-hash": "^1.0.0",
     "ts-dev-stack": "*",
     "tsds-config": "*"
   },

@@ -4,7 +4,6 @@ delete process.env.NODE_OPTIONS;
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
-import shortHash from 'short-hash';
 import { installGitRepo } from 'tsds-lib-test';
 import url from 'url';
 
@@ -15,7 +14,7 @@ const REPO = 'https://github.com/kmalakoff/fetch-http-message.git';
 
 describe('lib', () => {
   describe('installGitRepo', () => {
-    const dest = path.join(pkgRoot, '.tmp', 'cache', shortHash(process.cwd()), 'fetch-http-message');
+    const dest = path.join(pkgRoot, '.cache', 'fetch-http-message');
 
     it('should clone and install a git repo', (done) => {
       installGitRepo(REPO, dest, (err?: Error | null): void => {

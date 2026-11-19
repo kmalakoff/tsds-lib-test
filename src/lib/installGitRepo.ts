@@ -89,6 +89,11 @@ function run(repo: string, dest: string, options: CommandOptions | InstallOption
     checkDirectoryExists(dest, (err, exists) => {
       if (err) return callback(err);
       const queue = new Queue(1);
+      // The checkout is cloned, updated and installed in place, on purpose:
+      // - it floats: every call resets it and pulls, so callers test against the fixture's latest commit, never a pinned one.
+      // - it is not built in a staging folder and renamed (the staged-cache pattern): renaming a tree that holds node_modules fails
+      //   on Windows when any file in it is open, and breaks anything that recorded its own path while installing.
+      // - an interrupted clone or install needs no cleanup: the next call updates the checkout and installs again.
       if (!exists) {
         queue.defer(cloneRepository.bind(null, repo, dest));
         queue.defer(installDependencies.bind(null, dest));
